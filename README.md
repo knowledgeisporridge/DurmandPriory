@@ -1,18 +1,17 @@
-DurmandPriory
+Durmand Priory
 =============
 
-"Durmand Priory" - An Objective C API for the Guild Wars 2 REST API. ARC-Based.
- 
-IMPORTANT: This is a work in progress. As it stands it's not strictly a framework. Grab the source, open in Xcode and run. All 'framework' code is included in the GW2API group. In time I'll move this into a more reusable format, perhaps a static lib. But for now the code is easy to reuse and working. All endpoints are represented, however there may be a few pieces of missing data until I get around to fleshing everything out.
+**Durmand Priory** - An Objective C API for the Guild Wars 2 REST API, using the ARC memory model. This is a work in progress. As it stands it's not strictly a framework. Grab the source, open in Xcode and run. All 'framework' code is included in the GW2API group. In time I'll move this into a more reusable format, perhaps a static lib. But for now the code is easy to reuse and working. All endpoints are represented, however there may be a few pieces of missing data until I get around to fleshing everything out.
 
-DEPENDENCIES: This framework depends on AFNetworking (https://github.com/AFNetworking/AFNetworking). Grab a copy and drag it into the project.
+Dependencies
+-------------
+AFNetworking (https://github.com/AFNetworking/AFNetworking). Grab a copy and drag it into the project.
 
+Overview
+-------------
+This is a _domain first_ framework; you deal with the domain first and foremost. Services are fully abstracted from the client and you never deal with endpoints, server addresses, rest versions or parameters unless you absolutely want to.
  
-This is a 'domain first' framework. The idea is that you deal with the domain first and 
-foremost. Services are fully abstracted from the client and you never deal with endpoints, 
-server addresses, rest versions or parameters.
- 
-The pattern is simple; domain classes provide class-level methods to manage data. For example
+The pattern is rather simple; domain classes provide class-level methods to manage data. For example
 GW2Item has;
 ```objective-c
     + (NSArray *)items;
@@ -26,7 +25,7 @@ In order to populate items simply ask the API to fetch them;
 }];
 ```
  
-The GW2 Rest service's items endpoint gives all known item IDs, so each item in the collection
+The GW2 Rest service's items endpoint returns all known item IDs, so each item in the collection
 returned by [GW2Item items] contains an ID, but no real data.
  
 In order to get the details of a specific item simply pass that item back to the API;
@@ -37,15 +36,15 @@ GW2Item * item = [[GW2Item items] lastObject];
 }];
 ```
 
-This pattern is repeated throughout the API. You take the same approach with recipes, 
+This _pattern_ is repeated throughout the API. You take the same approach with recipes, 
 World Vs World matches, events... etc. Pass the CLASS to populate the collections of data, pass
 an instance to populate the details.
  
-GW2API is the main API class. It's a singleton; you access the shared instance using the +sharedAPI
-class method. For your convience you can simply use the 'DurmandPriory' definition...
+
  
-[DurmandPriory fetch:...] is the same as [[GW2API sharedAPI] fetch:...]
- 
+
+Fetching multiple sets of data in one operation
+----------
 
 The API also provides a higher-level fetch scheme. You can collect collections of data. A collection is an area of the domain that makes sense and may be comprised of several domain objects. For example the WvW collection will fetch Worlds and Match data, events also fetch maps, etc.
 
@@ -61,9 +60,23 @@ The API also provides a higher-level fetch scheme. You can collect collections o
    }
 }];
 ```
-  
+
+Current collections
+##########
+
+ * GW2APIDomainCollectionEverything
+ * GW2APIDomainCollectionWorldVsWorld
+ * GW2APIDomainCollectionItems
+ * GW2APIDomainCollectionRecipes
+ * GW2APIDomainCollectionEvents
+
+A note on GW2APIDomainCollectionEverything; this collection represents a short-hand way of fetching all _other_ collections in a manner that is efficient and in an order that guarantees completeness... it does not mean that all DETAILS for all objects will be returned too. The pattern remains; if you want details of an item, recipe, match or event you must ask the API to fetch it by passing the instance you want details for.
+
+I currently have no plans to provide an API to fetch all instances with details, as I think this is something that is easily achieved in your own code and open for _abuse_.
+
+ 
 How does it work?
-=============
+-------------
 
 For each domain class (GW2Item, GW2Event, GW2Recipe... etc) there's a corresponding configuration 
 file (GW2Item.json, GW2Event.json, GW2Recipe.json... etc) that defines a number of configuration values
@@ -121,7 +134,7 @@ pass an INSTANCE to get specific details for that specific item/recipe/event/mat
 
 
 Relationships between objects.
-=============
+-------------
 
 Some objects only make sense when they're constructed with other areas of the domain. For example a recipe only makes sense when we know the item is makes, and the items required to make it. Being a remote service that litterally offers tens of thousands of items, recipes and combinations thereof, how can we guarantee that when we fetch a recipe it makes sense? That we have the items we need for it?
 
@@ -133,7 +146,7 @@ requiredDomainObjects allows domain objects to tell the API of additional domain
 
 
 Restricting the API by world.
-=============
+-------------
 
 Some of GW2's rest services do not require a world to limit data. For example, you can fetch the status of ALL events across ALL worlds. This is a pretty large resultset. You may only care about a specific world, and let's be honest most apps will likely deal with world-level data. That is, ultimately what users will care about; "what's happening on my world".
 
@@ -162,5 +175,21 @@ Now the fetch for GW2Event will be restricted by your world. How does it know? I
 }
 ```
 
+Usage considerations
+----------
+
+Be aware that Anet's GW2 API is very loose. In order to make the most of Durmand Priory you should have a little knowledge of how their data relates to one another. It's important also to ensure that you fetch data in an appropriate order, for example ensure that GW2Item has been fetched before dealing with GW2Recipe as recipes only make sense with items.
+
+GW2API is the main API class. It's a singleton; you access the shared instance using the +sharedAPI
+class method. For your convience you can simply use the 'DurmandPriory' definition...
+ 
+[DurmandPriory fetch:...] is the same as [[GW2API sharedAPI] fetch:...]
 
 GW2API.h/m is the key API class. Take a look at example iPhone application, and to use this framework just import DurmandPriory.h.
+
+
+
+Further reading
+----------
+GW2 API Wiki - http://wiki.guildwars2.com/wiki/API
+GW2 API Documentation - https://forum-en.guildwars2.com/forum/community/api/API-Documentation/first#post2028044
