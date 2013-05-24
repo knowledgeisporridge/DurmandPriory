@@ -161,3 +161,6 @@ Now the fetch for GW2Event will be restricted by your world. How does it know? I
     "parameters":["event_id"]
 }
 ```
+
+
+GW2API.h/m is the key API class. Take a look at example iPhone application, and to use this framework just import DurmandPriory.h.
