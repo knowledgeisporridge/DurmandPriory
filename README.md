@@ -5,7 +5,7 @@ DurmandPriory
  
 IMPORTANT: This is a work in progress. As it stands it's not strictly a framework. Grab the source, open in Xcode and run. All 'framework' code is included in the GW2API group. In time I'll move this into a more reusable format, perhaps a static lib. But for now the code is easy to reuse and working. All endpoints are represented, however there may be a few pieces of missing data until I get around to fleshing everything out.
 
-DEPENDENCIES: This framework depends on AFNetworking (https://github.com/AFNetworking/AFNetworking).
+DEPENDENCIES: This framework depends on AFNetworking (https://github.com/AFNetworking/AFNetworking). Grab a copy and drag it into the project.
 
  
 This is a 'domain first' framework. The idea is that you deal with the domain first and 
@@ -14,9 +14,9 @@ server addresses, rest versions or parameters.
  
 The pattern is simple; domain classes provide class-level methods to manage data. For example
 GW2Item has;
- + (NSArray *)items;
- + (GW2Item *)itemById:(NSString *)item_id;
- + (void)parse:(id)data;
+    + (NSArray *)items;
+    + (GW2Item *)itemById:(NSString *)item_id;
+    + (void)parse:(id)data;
  
 In order to populate items simply ask the API to fetch them;
  
