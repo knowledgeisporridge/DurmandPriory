@@ -29,6 +29,7 @@
 
 + (NSArray *)worlds;
 + (NSArray *)worldsByRegion:(GW2Region)region;
++ (GW2World *)worldByName:(NSString *)name;
 + (GW2World *)worldById:(NSString *)world_id;
 
 @end

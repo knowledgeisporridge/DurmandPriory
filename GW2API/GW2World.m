@@ -72,6 +72,15 @@ static NSMutableDictionary * worldsById_;
     return worlds;
 }
 
++ (GW2World *)worldByName:(NSString *)name {
+    for (GW2World * world in [self worlds]) {
+        if ( [world.name isEqualToString:name] ) {
+            return world;
+        }
+    }
+    
+    return nil;
+}
 
 #pragma mark - GW2 API interfaces -
 
