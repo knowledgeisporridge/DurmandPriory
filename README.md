@@ -14,26 +14,29 @@ server addresses, rest versions or parameters.
  
 The pattern is simple; domain classes provide class-level methods to manage data. For example
 GW2Item has;
+```
     + (NSArray *)items;
     + (GW2Item *)itemById:(NSString *)item_id;
     + (void)parse:(id)data;
- 
+```
 In order to populate items simply ask the API to fetch them;
- 
+```
 [DurmandPriory fetch:[GW2Item class] completionBlock:^(id domain) {
    // Called once the API has finished fetching it's data.
 }];
+```
  
 The GW2 Rest service's items endpoint gives all known item IDs, so each item in the collection
 returned by [GW2Item items] contains an ID, but no real data.
  
 In order to get the details of a specific item simply pass that item back to the API;
- 
+```
 GW2Item * item = ... // Your item.
 [DurmandPriory fetch:item completionBlock:^(id domain) {
    // Called once the API has finished fetching your item's data.
 }];
- 
+```
+
 This pattern is repeated throughout the API. You take the same approach with recipes, 
 World Vs World matches, events... etc. Pass the CLASS to populate the collections of data, pass
 an instance to populate the details.
@@ -46,6 +49,7 @@ class method. For your convience you can simply use the 'DurmandPriory' definiti
 
 The API also provides a higher-level fetch scheme. You can collect collections of data. A collection is an area of the domain that makes sense and may be comprised of several domain objects. For example the WvW collection will fetch Worlds and Match data, events also fetch maps, etc.
 
+```
 [DurmandPriory fetchCollection:GW2APIDomainCollectionWorldVsWorld
                    completionBlock:^(GW2APIDomainCollection collection) {
    
@@ -56,7 +60,7 @@ The API also provides a higher-level fetch scheme. You can collect collections o
        // myWorld.matchup now has scores, etc.
    }
 }];
-  
+```
   
 How does it work?
 =============
@@ -70,9 +74,11 @@ Let's take a look at a simple example; the GW2World class. A World in GW2 is a s
 The GW2World class represents, at the class level, all worlds, and at instance level a specific world.
 
 The configuration file (GW2World.json) for this class simple defines the endpoint;
+```
 {
     "endpoint":"world_names.json"
 }
+```
 
 When you call [DurmandPriory fetch:[GW2World class] ...] the API reads this configuration, builds a request,
 parses the response and passes the data to the GW2World's +parse: method. +parse takes that data and builds
@@ -81,16 +87,21 @@ a collection of worlds from it.
 You can access these worlds with [GW2World worlds].
 
 This is the pattern you'll use throughout the API. Need to get items?
+
+```
 [DurmandPriory fetch:[GW2Item class] completionBlock:^(id domain) {
     // Grab your items from [GW2Item items];
 }];
+```
 
 It's that simple. Again, the API receives the class and opens the GW2Item.json configuration file, which contains;
+```
 {
     "endpoint":"items.json",
     "details_endpoint":"item_details.json",
     "parameters":["item_id"]
 }
+```
 
 So we have a collection of all items in the system but we know want to know more about a specific item.
 The configuration file provides a "details_endpoint" and establishes that "item_id" is a required parameter.
@@ -98,11 +109,12 @@ So we simple pass our item INSTANCE to the API, which reads the configuration fo
 instance knows that it needs to fetch details. It builds an endpoint for the details_endpoint address and asks
 the instance for a value for "item_id"...
 
+```
 GW2Item * myItem = [GW2Item itemById:@"12345"];
 [DurmandPriory fetch:myItem completionBlock:^(id domain) {
     // 'myItem' has now been populated with all data from the item_details endpoint.
 }];
-
+```
 
 And that's it. Pass a class to get knowledge of WHAT items/recipes/events/matches and 
 pass an INSTANCE to get specific details for that specific item/recipe/event/matche. That's the pattern.
@@ -127,15 +139,20 @@ Some of GW2's rest services do not require a world to limit data. For example, y
 
 The API does support API-wide request parameters. For example called the API for events will fetch all events;
 
+```
 [DurmandPriory fetch:[GW2Event class] ...];
+```
 
 However if you wish to only see events for your world you can tell the API that.
 
+```
 GW2World * myWorld = [GW2World worldByName:@"Gandara"];
 [DurmandPriory addRequestParameter:kGW2APIRequestParameterWorldID value:myWorld.world_id];
 [DurmandPriory fetch:[GW2Event class] ...];
+```
 
 Now the fetch for GW2Event will be restricted by your world. How does it know? It's defined in the GW2Event.json configuration file;
+```
 {
     "restrictions":["world_id"],
     "endpoint":"events.json",
@@ -143,4 +160,4 @@ Now the fetch for GW2Event will be restricted by your world. How does it know? I
     "details_endpoint":"events.json",
     "parameters":["event_id"]
 }
-
+```
