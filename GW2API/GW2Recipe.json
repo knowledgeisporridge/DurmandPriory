@@ -1,0 +1,5 @@
+{
+    "endpoint":"recipes.json",
+    "details_endpoint":"recipe_details.json",
+    "parameters":["recipe_id"]
+}

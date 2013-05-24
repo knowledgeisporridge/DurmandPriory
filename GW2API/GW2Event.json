@@ -1,0 +1,7 @@
+{
+    "restrictions":["world_id"],
+    "endpoint":"events.json",
+    "names_endpoint":"event_names.json",
+    "details_endpoint":"events.json",
+    "parameters":["event_id"]
+}

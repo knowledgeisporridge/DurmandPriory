@@ -1,0 +1,5 @@
+{
+    "endpoint":"items.json",
+    "details_endpoint":"item_details.json",
+    "parameters":["item_id"]
+}

@@ -1,0 +1,5 @@
+{
+    "endpoint":"wvw/matches.json",
+    "details_endpoint":"wvw/match_details.json",
+    "parameters":["match_id"]
+}
