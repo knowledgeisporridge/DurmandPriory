@@ -9,7 +9,7 @@ AFNetworking (https://github.com/AFNetworking/AFNetworking). Grab a copy and dra
 
 Adding Durmand Priory to your project
 -------------
-For now simply drag and drop the files under the 'DurmandPriory' directory into your project window.
+For now simply drag and drop the files under the 'DurmandPriory' directory into your project window and be sure to inclide "AFNetworking" in your project.
 
 
 Overview
