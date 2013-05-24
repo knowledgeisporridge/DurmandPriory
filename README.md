@@ -7,6 +7,11 @@ Dependencies
 -------------
 AFNetworking (https://github.com/AFNetworking/AFNetworking). Grab a copy and drag it into the project.
 
+Adding Durmand Priory to your project
+-------------
+For now simply drag and drop the files under the 'DurmandPriory' directory into your project window.
+
+
 Overview
 -------------
 This is a _domain first_ framework; you deal with the domain first and foremost. Services are fully abstracted from the client and you never deal with endpoints, server addresses, rest versions or parameters unless you absolutely want to.
