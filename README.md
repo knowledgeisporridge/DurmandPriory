@@ -14,13 +14,13 @@ server addresses, rest versions or parameters.
  
 The pattern is simple; domain classes provide class-level methods to manage data. For example
 GW2Item has;
-```
+```objective-c
     + (NSArray *)items;
     + (GW2Item *)itemById:(NSString *)item_id;
     + (void)parse:(id)data;
 ```
 In order to populate items simply ask the API to fetch them;
-```
+```objective-c
 [DurmandPriory fetch:[GW2Item class] completionBlock:^(id domain) {
    // Called once the API has finished fetching it's data.
 }];
@@ -30,8 +30,8 @@ The GW2 Rest service's items endpoint gives all known item IDs, so each item in 
 returned by [GW2Item items] contains an ID, but no real data.
  
 In order to get the details of a specific item simply pass that item back to the API;
-```
-GW2Item * item = ... // Your item.
+```objective-c
+GW2Item * item = [[GW2Item items] lastObject];
 [DurmandPriory fetch:item completionBlock:^(id domain) {
    // Called once the API has finished fetching your item's data.
 }];
@@ -49,7 +49,7 @@ class method. For your convience you can simply use the 'DurmandPriory' definiti
 
 The API also provides a higher-level fetch scheme. You can collect collections of data. A collection is an area of the domain that makes sense and may be comprised of several domain objects. For example the WvW collection will fetch Worlds and Match data, events also fetch maps, etc.
 
-```
+```objective-c
 [DurmandPriory fetchCollection:GW2APIDomainCollectionWorldVsWorld
                    completionBlock:^(GW2APIDomainCollection collection) {
    
@@ -74,7 +74,7 @@ Let's take a look at a simple example; the GW2World class. A World in GW2 is a s
 The GW2World class represents, at the class level, all worlds, and at instance level a specific world.
 
 The configuration file (GW2World.json) for this class simple defines the endpoint;
-```
+```json
 {
     "endpoint":"world_names.json"
 }
@@ -88,14 +88,14 @@ You can access these worlds with [GW2World worlds].
 
 This is the pattern you'll use throughout the API. Need to get items?
 
-```
+```objective-c
 [DurmandPriory fetch:[GW2Item class] completionBlock:^(id domain) {
     // Grab your items from [GW2Item items];
 }];
 ```
 
 It's that simple. Again, the API receives the class and opens the GW2Item.json configuration file, which contains;
-```
+```json
 {
     "endpoint":"items.json",
     "details_endpoint":"item_details.json",
@@ -109,7 +109,7 @@ So we simple pass our item INSTANCE to the API, which reads the configuration fo
 instance knows that it needs to fetch details. It builds an endpoint for the details_endpoint address and asks
 the instance for a value for "item_id"...
 
-```
+```objective-c
 GW2Item * myItem = [GW2Item itemById:@"12345"];
 [DurmandPriory fetch:myItem completionBlock:^(id domain) {
     // 'myItem' has now been populated with all data from the item_details endpoint.
@@ -139,20 +139,20 @@ Some of GW2's rest services do not require a world to limit data. For example, y
 
 The API does support API-wide request parameters. For example called the API for events will fetch all events;
 
-```
+```objective-c
 [DurmandPriory fetch:[GW2Event class] ...];
 ```
 
 However if you wish to only see events for your world you can tell the API that.
 
-```
+```objective-c
 GW2World * myWorld = [GW2World worldByName:@"Gandara"];
 [DurmandPriory addRequestParameter:kGW2APIRequestParameterWorldID value:myWorld.world_id];
 [DurmandPriory fetch:[GW2Event class] ...];
 ```
 
 Now the fetch for GW2Event will be restricted by your world. How does it know? It's defined in the GW2Event.json configuration file;
-```
+```json
 {
     "restrictions":["world_id"],
     "endpoint":"events.json",
