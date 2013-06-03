@@ -6,6 +6,9 @@
 #import <Foundation/Foundation.h>
 #import "GW2API.h"
 
+
+@class GW2MatchMapObjective;
+
 @interface GW2Map : NSObject <GW2APIServiceBackedObject> {
     
 @protected
@@ -20,5 +23,7 @@
 
 + (NSArray *)maps;
 + (GW2Map *)mapById:(NSString *)map_id;
+
+- (int)tickByWorldColor:(GW2MatchTeamColor)color;
 
 @end

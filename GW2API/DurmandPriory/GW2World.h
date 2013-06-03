@@ -26,6 +26,7 @@
 - (id)initWithWorldId:(NSString *)world_id;
 
 - (GW2Region)region;
+- (GW2Language)language;
 
 + (NSArray *)worlds;
 + (NSArray *)worldsByRegion:(GW2Region)region;

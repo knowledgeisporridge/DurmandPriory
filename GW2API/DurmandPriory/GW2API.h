@@ -76,11 +76,15 @@ typedef enum GW2APIDomainCollection {
 typedef enum GW2Region {
     GW2Region_Unknown,
     GW2Region_US,
-    GW2Region_EU,
-    GW2Region_EU_FR,
-    GW2Region_EU_DE,
-    GW2Region_EU_ES
+    GW2Region_EU
 } GW2Region;
+
+typedef enum GW2Language {
+    GW2LanguageEnglish,
+    GW2LanguageFrench,
+    GW2LanguageGerman,
+    GW2LanguageSpanish
+} GW2Language;
 
 
 #pragma mark - GW2 WvW types - 

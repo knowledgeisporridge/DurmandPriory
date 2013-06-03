@@ -5,15 +5,60 @@
 
 #import "GW2Match.h"
 #import "GW2World.h"
-
+#import "GW2MatchMapObjective.h"
+#import "GW2MatchMapObjectiveState.h"
 
 
 @implementation GW2MatchMap
 
+@synthesize tickScores = tickScores_;
 @synthesize scores = scores_;
 @synthesize type = type_;
 
+- (void)parseObjectives:(NSArray *)objectives {
+    objectives_ = [NSMutableArray array];
+    
+    for ( NSDictionary * objectiveData in objectives ) {
+        GW2MatchMapObjective * objective = [GW2MatchMapObjective objectiveById:[objectiveData objectForKey:@"id"]];
+        GW2MatchMapObjectiveState * state = [[GW2MatchMapObjectiveState alloc] init];
+        
+        NSString * owner = [[objectiveData objectForKey:@"owner"] lowercaseString];
+        state.owningTeamColor =
+        ( [owner isEqualToString:@"blue"] ? GW2MatchTeamColorBlue :
+         ( [owner isEqualToString:@"red"] ? GW2MatchTeamColorRed : GW2MatchTeamColorGreen ));
+        
+        state.owningGuildId = [objectiveData objectForKey:@"owner_guild"];
+        
+        state.objective = objective;
+        
+        [objectives_ addObject:state];
+    }
+    
+    tickScores_.red   = [self tickForTeamColor:GW2MatchTeamColorRed];
+    tickScores_.green = [self tickForTeamColor:GW2MatchTeamColorGreen];
+    tickScores_.blue  = [self tickForTeamColor:GW2MatchTeamColorBlue];
+}
+
+- (int)tickForTeamColor:(GW2MatchTeamColor)color {
+    int tick = 0;
+    for ( GW2MatchMapObjectiveState * state in objectives_ ) {
+        if ( state.owningTeamColor == color ) {
+            tick += [state.objective pointsValue];
+        }
+    }
+    return tick;
+}
+
+- (int)tickTotal {
+    int tick = 0;
+    for ( GW2MatchMapObjectiveState * state in objectives_ ) {
+        tick += [state.objective pointsValue];
+    }
+    return tick;
+}
+
 @end
+
 
 
 
@@ -24,6 +69,7 @@
 @synthesize greenWorld = greenWorld_;
 @synthesize match_id = match_id_;
 @synthesize totalScores = totalScores_;
+@synthesize tickScores = tickScores_;
 
 
 static NSMutableDictionary * matchesById_;
@@ -44,6 +90,46 @@ static NSMutableDictionary * matchesById_;
 - (NSArray *)maps {
     return maps_;
 }
+
+- (GW2MatchMap *)mapByTypeName:(NSString *)name {
+    for ( GW2MatchMap * map in maps_ ) {
+        if ( [map.type isEqualToString:name] ) {
+            return map;
+        }
+    }
+    return nil;
+}
+
+- (GW2MatchTeamColor)teamColorForWorld:(GW2World *)world {
+    if ( world == redWorld_ ) {
+        return GW2MatchTeamColorRed;
+    }
+    if ( world == greenWorld_ ) {
+        return GW2MatchTeamColorGreen;
+    }
+    if ( world == blueWorld_ ) {
+        return GW2MatchTeamColorBlue;
+    }
+    return GW2MatchTeamColorGreen;
+}
+
+
+- (NSArray *)worldsOtherThanId:(NSString *)world_id {
+    if ( [world_id isEqualToString:redWorld_.world_id] ) {
+        return [NSMutableArray arrayWithObjects:greenWorld_, blueWorld_, nil];
+    }
+    
+    if ( [world_id isEqualToString:greenWorld_.world_id] ) {
+        return [NSMutableArray arrayWithObjects:redWorld_, blueWorld_, nil];
+    }
+    
+    if ( [world_id isEqualToString:blueWorld_.world_id] ) {
+        return [NSMutableArray arrayWithObjects:greenWorld_, redWorld_, nil];
+    }
+    
+    return nil;
+}
+
 
 #pragma mark - GW2 API interfaces -
 
@@ -89,6 +175,10 @@ static NSMutableDictionary * matchesById_;
     totalScores_.green = [[scores objectAtIndex:2] intValue];
     totalScores_.blue  = [[scores objectAtIndex:1] intValue];
     
+    tickScores_.red   = 0;
+    tickScores_.green = 0;
+    tickScores_.blue  = 0;
+    
     // Let's get our map information...
     for ( NSDictionary * mapData in [matchData objectForKey:@"maps"] ) {
         GW2MatchMap * map = [[GW2MatchMap alloc] init];
@@ -102,9 +192,13 @@ static NSMutableDictionary * matchesById_;
         map.scores = scores;
         map.type = [mapData objectForKey:@"type"];
         
-        // @TODO Objectives data.
+        [map parseObjectives:[mapData objectForKey:@"objectives"]];
         
         [maps_ addObject:map];
+        
+        tickScores_.red   += map.tickScores.red;
+        tickScores_.green += map.tickScores.green;
+        tickScores_.blue  += map.tickScores.blue;
     }
 }
 

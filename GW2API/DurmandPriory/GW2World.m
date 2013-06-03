@@ -23,32 +23,38 @@
 
 
 - (GW2Region)region {
-    if ( [world_id_ hasPrefix:@"10"] ) {
+    if ( [world_id_ hasPrefix:@"1"] ) {
         return GW2Region_US;
     }
-    else if ( [world_id_ hasPrefix:@"20"] ) {
+    else if ( [world_id_ hasPrefix:@"2"] ) {
         return GW2Region_EU;
     }
-    else if ( [world_id_ hasPrefix:@"21"] ) {
-        return GW2Region_EU_FR;
+    
+    return GW2Region_US;
+}
+
+- (GW2Language)language {
+    if ( [world_id_ hasPrefix:@"21"] ) {
+        return GW2LanguageFrench;
     }
     else if ( [world_id_ hasPrefix:@"22"] ) {
-        return GW2Region_EU_DE;
+        return GW2LanguageGerman;
     }
     else if ( [world_id_ hasPrefix:@"23"] ) {
-        return GW2Region_EU_ES;
+        return GW2LanguageSpanish;
     }
     else {
-        return GW2Region_Unknown;
+        return GW2LanguageEnglish;
     }
 }
 
 
 
+static NSArray * orderedWorlds_;
 static NSMutableDictionary * worldsById_;
 
 + (NSArray *)worlds {
-    return [worldsById_ allValues];
+    return orderedWorlds_;
 }
 
 
@@ -59,7 +65,6 @@ static NSMutableDictionary * worldsById_;
     
     return [worldsById_ objectForKey:world_id];
 }
-
 
 + (NSArray *)worldsByRegion:(GW2Region)region {
     NSMutableArray * worlds = [NSMutableArray arrayWithCapacity:0];
@@ -101,10 +106,15 @@ static NSMutableDictionary * worldsById_;
         }
         
         world.name = [worldData objectForKey:@"name"];
-        
         [worldsById_ setObject:world
                         forKey:world.world_id];
     }
+    
+    NSSortDescriptor * sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name"
+                                                  ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    orderedWorlds_ = [[worldsById_ allValues] sortedArrayUsingDescriptors:sortDescriptors];
+    
 }
 
 @end

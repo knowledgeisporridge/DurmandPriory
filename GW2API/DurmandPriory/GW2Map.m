@@ -4,6 +4,8 @@
 //
 
 #import "GW2Map.h"
+#import "GW2MatchMapObjective.h"
+
 
 @implementation GW2Map
 
@@ -18,7 +20,6 @@
     
     return self;
 }
-
 
 
 static NSMutableDictionary * mapsById_;

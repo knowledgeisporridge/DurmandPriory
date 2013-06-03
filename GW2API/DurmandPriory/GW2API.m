@@ -3,7 +3,7 @@
 //  GW2API
 //
 
-#include <objc/objc-runtime.h>
+//#include <objc/objc-runtime.h>
 
 #import "GW2API.h"
 #import "AFNetworking.h"
@@ -13,6 +13,7 @@
 #import "GW2Item.h"
 #import "GW2Event.h"
 #import "GW2Map.h"
+#import "GW2MatchMapObjective.h"
 
 
 NSString * const kGW2APIRequestParameterWorldID = @"world_id";
@@ -230,13 +231,17 @@ NSString * const kGW2APIRequestParameterWorldID = @"world_id";
     [[GW2API sharedAPI] fetch:[GW2World class]
               completionBlock:^(id domain) {
                   
-                  // ... and then ask for match information...
-                  [[GW2API sharedAPI] fetch:[GW2Match class]
+                  [[GW2API sharedAPI] fetch:[GW2MatchMapObjective class]
                             completionBlock:^(id domain) {
-                                
-                                // ... and we'll finish by telling the delegate that our collection has been loaded.
-                                completion(GW2APIDomainCollectionWorldVsWorld);
-                            }];
+                      
+                                // ... and then ask for match information...
+                                [[GW2API sharedAPI] fetch:[GW2Match class]
+                                          completionBlock:^(id domain) {
+                                              
+                                              // ... and we'll finish by telling the delegate that our collection has been loaded.
+                                              completion(GW2APIDomainCollectionWorldVsWorld);
+                                          }];
+                  }];
               }];
 }
 
